@@ -1,0 +1,10 @@
+{
+  "domain": "voi_nearest_scooter",
+  "name": "VOI Nearest Scooter Sensor",
+  "documentation": "",
+  "dependencies": [],
+  "codeowners": ["@davidorlea"],
+  "requirements": [
+  	"geopy==1.20.0"
+  ]
+}
