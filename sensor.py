@@ -1,49 +1,51 @@
-import homeassistant.helpers.config_validation as cv
+"""Representation of VOI Nearest Scooter Sensors."""
+
 import json
 import logging
+
+from geopy.distance import distance
 import voluptuous as vol
 
-from geopy.exc import (
-    GeocoderTimedOut, GeocoderUnavailable
-)
-from geopy.distance import distance
-
-from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.components.rest.sensor import RestData
+from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.const import (
-    ATTR_ATTRIBUTION, CONF_NAME
+    ATTR_ATTRIBUTION,
+    ATTR_LATITUDE,
+    ATTR_LONGITUDE,
+    CONF_NAME,
 )
+import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 
 _LOGGER = logging.getLogger(__name__)
 
-ATTR_LATITUDE = 'latitude'
-ATTR_LONGITUDE = 'longitude'
-ATTR_BATTERY = 'battery'
-ATTR_UPDATED = 'updated'
+ATTR_BATTERY = "battery"
+ATTR_UPDATED = "updated"
 
-DEFAULT_NAME = 'VOI Nearest Scooter'
+DEFAULT_NAME = "VOI Nearest Scooter"
 
-UNIT_OF_MEASUREMENT = 'm'
-ICON = 'mdi:scooter'
-ATTRIBUTION = 'Data provided by VOI'
+UNIT_OF_MEASUREMENT = "m"
+ICON = "mdi:scooter"
+ATTRIBUTION = "Data provided by VOI"
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-})
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string}
+)
+
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Setup the sensor platform."""
+    """Set up the sensor platform."""
 
     name = config.get(CONF_NAME)
     latitude = hass.config.latitude
     longitude = hass.config.longitude
 
-    url = 'https://api.voiapp.io/v1/vehicle/status/ready?lat={}&lng={}'
+    url = "https://api.voiapp.io/v1/vehicle/status/ready?lat={}&lng={}"
     endpoint = url.format(latitude, longitude)
-    rest = RestData('GET', endpoint, None, None, None, True)
+    rest = RestData("GET", endpoint, None, None, None, True)
 
     add_entities([VoiNearestScooterSensor(rest, name, latitude, longitude)])
+
 
 class VoiNearestScooterSensor(Entity):
     """Representation of a VOI Nearest Scooter Sensor."""
@@ -60,7 +62,7 @@ class VoiNearestScooterSensor(Entity):
     @property
     def name(self):
         """Return the name of the VOI Nearest Scooter Sensor."""
-        return '{}'.format(self._name)
+        return self._name
 
     @property
     def unit_of_measurement(self):
@@ -79,7 +81,7 @@ class VoiNearestScooterSensor(Entity):
 
     @property
     def device_state_attributes(self):
-        """Return the state attributes of the VOI Nearest Scooter Sensor.."""
+        """Return the state attributes of the VOI Nearest Scooter Sensor."""
         return self._attributes
 
     def update(self):
@@ -94,13 +96,13 @@ class VoiNearestScooterSensor(Entity):
         if result:
             try:
                 json_list = json.loads(result)
-
                 for item in json_list:
-                    item['distance'] = distance((item['location'][0], item['location'][1]), (self._latitude, self._longitude)).m
-
-                scooter = sorted(json_list, key=lambda item: item['distance'])[0]
-
-                _LOGGER.debug("Using JSON entry: %s", scooter)
+                    item["distance"] = distance(
+                        (item["location"][0], item["location"][1]),
+                        (self._latitude, self._longitude),
+                    ).m
+                scooter = sorted(json_list, key=lambda item: item["distance"])[0]
+                _LOGGER.debug("Using scooter: %s", scooter)
             except ValueError:
                 _LOGGER.warning("REST result could not be parsed as JSON")
                 _LOGGER.debug("Erroneous JSON: %s", result)
@@ -108,9 +110,9 @@ class VoiNearestScooterSensor(Entity):
             _LOGGER.warning("Empty reply found when expecting JSON data")
 
         if scooter:
-            self._state = round(scooter['distance'])
-            self._attributes[ATTR_LATITUDE] = round(scooter['location'][0], 5)
-            self._attributes[ATTR_LONGITUDE] = round(scooter['location'][1], 5)
-            self._attributes[ATTR_BATTERY] = round(scooter['battery'])
-            self._attributes[ATTR_UPDATED] = scooter['updated']
+            self._state = round(scooter["distance"])
+            self._attributes[ATTR_LATITUDE] = round(scooter["location"][0], 5)
+            self._attributes[ATTR_LONGITUDE] = round(scooter["location"][1], 5)
+            self._attributes[ATTR_BATTERY] = round(scooter["battery"])
+            self._attributes[ATTR_UPDATED] = scooter["updated"]
             self._attributes[ATTR_ATTRIBUTION] = ATTRIBUTION
