@@ -1,1 +1,1 @@
-"""VOI Nearest Scooter Sensor"""
+"""VOI Nearest Scooter Sensor."""
