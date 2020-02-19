@@ -1,5 +1,6 @@
 """Representation of VOI Nearest Scooter Sensors."""
 
+from datetime import timedelta
 import logging
 
 from geopy.distance import distance
@@ -17,9 +18,12 @@ from homeassistant.const import (
 )
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
+from homeassistant.util import Throttle
 from homeassistant.util.json import load_json, save_json
 
 _LOGGER = logging.getLogger(__name__)
+
+MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=5)
 
 CONF_TOKEN_FILE = "token_file"
 
@@ -165,6 +169,7 @@ class VoiNearestScooterSensor(Entity):
         """Return the state attributes of the VOI Nearest Scooter Sensor."""
         return self._attributes
 
+    @Throttle(MIN_TIME_BETWEEN_UPDATES)
     def update(self):
         """Fetch new state data for the VOI Nearest Scooter Sensor."""
         self._state = None
