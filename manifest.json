@@ -1,6 +1,7 @@
 {
   "domain": "voi_nearest_scooter",
   "name": "VOI Nearest Scooter Sensor",
+  "version": "0.3.0",
   "documentation": "",
   "dependencies": [],
   "codeowners": ["@davidorlea"],
