@@ -1,7 +1,7 @@
 {
   "domain": "voi_nearest_scooter",
   "name": "VOI Nearest Scooter Sensor",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "documentation": "https://github.com/davidorlea/homeassistant-voi_nearest_scooter",
   "issue_tracker": "https://github.com/davidorlea/homeassistant-voi_nearest_scooter/issues",
   "dependencies": [],
